@@ -1,19 +1,13 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
-``` {r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.path='figure/')
-```
+# Reproducible Research: Peer Assessment 1
+
 
 ## Loading and preprocessing the data
 
 After downloading the data set we're uncompressing the zip file and reading the
 csv source "activity.csv" into R.
 
-``` {r readData}
+
+```r
 unzip("activity.zip")
 data <- read.csv("activity.csv", header=TRUE, sep=",", na.strings="NA")
 ```
@@ -23,7 +17,8 @@ data <- read.csv("activity.csv", header=TRUE, sep=",", na.strings="NA")
 I am removing NA data before drawing an histogran with frequencies of 
 individual's number of steps per day.
 
-``` {r plotHistogram}
+
+```r
 clean <- na.omit(data) 
 days <- unique(clean$date)
 daily <- c()
@@ -41,30 +36,32 @@ median <- median(daily)
 hist(daily, main="Steps Taken per Day", xlab="Total Steps", col="blue")
 ```
 
-* The mean of total steps taken per day is `r round(d_mean, 3)`
-* The median of total steps taken per day is `r round(median, 3)`
+![](figure/plotHistogram-1.png) 
+
+* The mean of total steps taken per day is 10766.189
+* The median of total steps taken per day is 10765
 
 ## What is the average daily activity pattern?
 
-``` {r plotAvarageDailyActivity}
+
+```r
 avg <- aggregate(steps~interval, clean, mean)
 plot(avg$interval, avg$steps, type="l", xlab="5-minute interval", ylab="Steps", 
      main="Average number of steps taken across all days")
 ```
-``` {r max, echo=FALSE}
-max <- which.max(avg$steps)
-maxAvgInterval <- avg[max, 'interval']
-maxAvgSteps <- avg[max, 'steps']
-```
 
-On average across all the days in the dataset, the maximum number of steps is __`r round(maxAvgSteps, 3)`__ is in 5-minute interval __#`r maxAvgInterval`__ 
+![](figure/plotAvarageDailyActivity-1.png) 
+
+
+On average across all the days in the dataset, the maximum number of steps is __206.17__ is in 5-minute interval __#835__ 
 
 ## Imputing missing values
 
-Imported data set has __`r sum(is.na(data$steps))`__ missing values.
+Imported data set has __2304__ missing values.
 I am filling those missing values with the mean for that day
 
-``` {r fillingData}
+
+```r
 # get index of missing values
 na <- which(is.na(data$steps))
 # get interval of missing values
@@ -78,24 +75,22 @@ sumFilled = aggregate(steps~date, dataFilled, sum)
 #plot graph
 hist(sumFilled$steps, col="red", main="Total number of steps taken each day \n (new dataset filled missing data)", xlab="Total Number of Steps")
 ```
-``` {r filled, echo=FALSE}
-#calculate the mean and median total number of steps taken per day
-meanFilled = round(mean(sumFilled$steps), 3)
-medianFilled = round(median(sumFilled$steps))
 
-```
+![](figure/fillingData-1.png) 
 
-* The __mean__ total number of steps taken per day is __`r meanFilled`__
-* The __median__ total number of steps taken per day is __`r medianFilled`__
 
-The mean number of steps taken per day are the same (`r meanFilled`) because I
+* The __mean__ total number of steps taken per day is __10766.189__
+* The __median__ total number of steps taken per day is __10766__
+
+The mean number of steps taken per day are the same (10766.189) because I
 filled missing data with the mean.
-The median number of steps taken per day are slightly higher (`r median` before 
-and `r medianFilled` after filling missing data). That probably because I
+The median number of steps taken per day are slightly higher (10765 before 
+and 10766 after filling missing data). That probably because I
 used mean to fill missed data.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r weekends}
+
+```r
 # create a new factor variable "dateIs" with two levels "Weekday" and "weekend"
 
 dataFilled['day'] <- factor(sapply(dataFilled$date, function(x){ 
@@ -108,5 +103,6 @@ avgDayType <- aggregate(steps~interval + day, mean, data=dataFilled)
 
 library(lattice)
 xyplot( steps ~ interval | day, data = avgDayType, type="l", layout=c(1,2), xlab="Interval", ylab="Number of steps")
-
 ```
+
+![](figure/weekends-1.png) 
